@@ -75,6 +75,10 @@ void menu()
     al_destroy_event_queue(queue);
 }
 
+void init_clicado(elemento* vetor){
+    for(int i=0;i<8;i++)
+        vetor[i].clicado=false;
+}
 
 int main()
 {
@@ -112,7 +116,7 @@ int main()
     inicialization(font,"fonte");
     ALLEGRO_BITMAP* fundojogo = al_load_bitmap("fundojogo.png");
     inicialization(fundojogo,"fundo do jogo");
-    ALLEGRO_BITMAP* icone = al_load_bitmap("icone.png");
+    ALLEGRO_BITMAP* icone = al_load_bitmap("Icone.png");
     inicialization(icone,"icone");
     ALLEGRO_EVENT event;
 /*==========================================================================*/    
@@ -133,13 +137,22 @@ int main()
 
 /*=========================================================================*/
     jogo_da_memoria[0].identidade = 1;
-    jogo_da_memoria[1].identidade = 2;
-    jogo_da_memoria[2].identidade = 3;
     jogo_da_memoria[3].identidade = 1;
-    jogo_da_memoria[4].identidade = 3;
+    jogo_da_memoria[1].identidade = 2;
     jogo_da_memoria[5].identidade = 2;
+    jogo_da_memoria[2].identidade = 3;
+    jogo_da_memoria[4].identidade = 3;
     jogo_da_memoria[6].identidade = 4;
     jogo_da_memoria[7].identidade = 4;
+    jogo_da_memoria[0].desenho = al_load_bitmap("Ziggs.png");
+    jogo_da_memoria[3].desenho = al_load_bitmap("Ziggs.png");
+    jogo_da_memoria[1].desenho = al_load_bitmap("Kaisa.png");
+    jogo_da_memoria[5].desenho = al_load_bitmap("Kaisa.png");
+    jogo_da_memoria[7].desenho = al_load_bitmap("LeBlanc.png");
+    jogo_da_memoria[6].desenho = al_load_bitmap("LeBlanc.png");
+    jogo_da_memoria[2].desenho = al_load_bitmap("Xerath.png");
+    jogo_da_memoria[4].desenho = al_load_bitmap("Xerath.png");
+    init_clicado(jogo_da_memoria);
 
     al_start_timer(timer);
     while(1)
@@ -156,10 +169,7 @@ int main()
                  y= event.mouse.y;
                  for(int k =0;k<8;k++){
                     if(x >= jogo_da_memoria[k].hitbox.x1 && x<= jogo_da_memoria[k].hitbox.x2 && y<=jogo_da_memoria[k].hitbox.y2 && y>=jogo_da_memoria[k].hitbox.y1){
-                        printf("x: %f y: %f\n",x,y);
-                        printf("%f %f %f %f\n",jogo_da_memoria[k].hitbox.x1,jogo_da_memoria[k].hitbox.x2,jogo_da_memoria[k].hitbox.y2,jogo_da_memoria[k].hitbox.y1);
                         jogo_da_memoria[k].clicado= true;
-                        printf("k: %d identidade: %d\n",k,jogo_da_memoria[k].identidade);
                         if(aux1==-1)
                             aux1=k;
                         else{
@@ -168,6 +178,9 @@ int main()
                                 jogo_da_memoria[aux1].hitbox = null_rectangle;
                                 aux1=-1;
                             }else{
+                                al_draw_bitmap(jogo_da_memoria[k].desenho,jogo_da_memoria[k].hitbox.x1,jogo_da_memoria[k].hitbox.y1,0);
+                                al_flip_display();
+                                sleep(1);
                                 jogo_da_memoria[k].clicado = false;
                                 jogo_da_memoria[aux1].clicado = false;
                                 aux1=-1;
@@ -195,13 +208,17 @@ int main()
                     loop principal, pois os hitboxes só precisam ser setados uma vez, depois lá
                     no evento de clique nós só tiramos os hitboxes*/
                     if(jogo_da_memoria[i].clicado==false){ 
-                    jogo_da_memoria[i].hitbox.x1 = icone_x;
-                    jogo_da_memoria[i].hitbox.y1 = icone_y;
-                    jogo_da_memoria[i].hitbox.x2 = icone_x + 236;
-                    jogo_da_memoria[i].hitbox.y2 = icone_y + 200;
+                        jogo_da_memoria[i].hitbox.x1 = icone_x;
+                        jogo_da_memoria[i].hitbox.y1 = icone_y;
+                        jogo_da_memoria[i].hitbox.x2 = icone_x + 120;
+                        jogo_da_memoria[i].hitbox.y2 = icone_y + 120;
                     }
                     //al_draw_filled_rectangle(icone_x,icone_y,icone_x + 236,icone_y + 200,al_map_rgb(255,0,0));
-                    al_draw_bitmap(icone,icone_x,icone_y,0);
+                    if(jogo_da_memoria[i].clicado==true){
+                        al_draw_bitmap(jogo_da_memoria[i].desenho,icone_x,icone_y,0);
+                    }else{
+                        al_draw_bitmap(icone,icone_x,icone_y,0);
+                    }
                     icone_x+= 300;
                     if(i==3){
                         icone_y+=350;
