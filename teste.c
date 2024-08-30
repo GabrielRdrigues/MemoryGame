@@ -125,20 +125,21 @@ int main()
 /*============================VARIÁVEIS PRIMITIVAS===========================*/
     bool redraw = true;
     bool done = false;
-    elemento jogo_da_memoria[2][4];
-    retangulo hitboxes[8];
+    elemento jogo_da_memoria[8];
     float x=100,y=100;
     float icone_x=50, icone_y=100;
+    int aux1= -1;
+    retangulo null_rectangle={0,0,0,0};
 
 /*=========================================================================*/
-    jogo_da_memoria[0][0].identidade = 1;
-    jogo_da_memoria[0][1].identidade = 2;
-    jogo_da_memoria[0][2].identidade = 3;
-    jogo_da_memoria[0][3].identidade = 1;
-    jogo_da_memoria[1][0].identidade = 3;
-    jogo_da_memoria[1][1].identidade = 2;
-    jogo_da_memoria[1][2].identidade = 4;
-    jogo_da_memoria[1][3].identidade = 4;
+    jogo_da_memoria[0].identidade = 1;
+    jogo_da_memoria[1].identidade = 2;
+    jogo_da_memoria[2].identidade = 3;
+    jogo_da_memoria[3].identidade = 1;
+    jogo_da_memoria[4].identidade = 3;
+    jogo_da_memoria[5].identidade = 2;
+    jogo_da_memoria[6].identidade = 4;
+    jogo_da_memoria[7].identidade = 4;
 
     al_start_timer(timer);
     while(1)
@@ -148,15 +149,30 @@ int main()
         switch(event.type)
         {
             case ALLEGRO_EVENT_TIMER:
-                
                 redraw = true;
                 break;
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                  x= event.mouse.x;
                  y= event.mouse.y;
                  for(int k =0;k<8;k++){
-                    if(x >= hitboxes[k].x1 && x<= hitboxes[k].x2 && y<=hitboxes[k].y2 && y>=hitboxes[k].y1){
-                        
+                    if(x >= jogo_da_memoria[k].hitbox.x1 && x<= jogo_da_memoria[k].hitbox.x2 && y<=jogo_da_memoria[k].hitbox.y2 && y>=jogo_da_memoria[k].hitbox.y1){
+                        printf("x: %f y: %f\n",x,y);
+                        printf("%f %f %f %f\n",jogo_da_memoria[k].hitbox.x1,jogo_da_memoria[k].hitbox.x2,jogo_da_memoria[k].hitbox.y2,jogo_da_memoria[k].hitbox.y1);
+                        jogo_da_memoria[k].clicado= true;
+                        printf("k: %d identidade: %d\n",k,jogo_da_memoria[k].identidade);
+                        if(aux1==-1)
+                            aux1=k;
+                        else{
+                            if(jogo_da_memoria[k].identidade==jogo_da_memoria[aux1].identidade){
+                                jogo_da_memoria[k].hitbox = null_rectangle;
+                                jogo_da_memoria[aux1].hitbox = null_rectangle;
+                                aux1=-1;
+                            }else{
+                                jogo_da_memoria[k].clicado = false;
+                                jogo_da_memoria[aux1].clicado = false;
+                                aux1=-1;
+                            }
+                        }
                     }
                  }
                  break;
@@ -171,18 +187,26 @@ int main()
         if(redraw && al_is_event_queue_empty(queue))
         {
             al_draw_bitmap(fundojogo,0,0,0);
-            for(int i=0;i<2;i++){
-                for(int j=0;j<4;j++){
-                    hitboxes[(i * 4)+ j].x1 = icone_x;
-                    hitboxes[(i * 4)+ j].y1 = icone_y;
-                    hitboxes[(i * 4)+ j].x2 = icone_x + 236;
-                    hitboxes[(i * 4)+ j].y2 = icone_y + 200;
+            for(int i=0;i<8;i++){
+                    /* O IF da linha abaixo (192) é necessário pois imagens clicadas
+                    tem o hitbox zerado (área zero) logo não se pode atualizar o hitbox dela 
+                    aqui*/
+                    /*Ideia para depois: Colocar a escrita dos hitboxes em uma função antes do
+                    loop principal, pois os hitboxes só precisam ser setados uma vez, depois lá
+                    no evento de clique nós só tiramos os hitboxes*/
+                    if(jogo_da_memoria[i].clicado==false){ 
+                    jogo_da_memoria[i].hitbox.x1 = icone_x;
+                    jogo_da_memoria[i].hitbox.y1 = icone_y;
+                    jogo_da_memoria[i].hitbox.x2 = icone_x + 236;
+                    jogo_da_memoria[i].hitbox.y2 = icone_y + 200;
+                    }
                     //al_draw_filled_rectangle(icone_x,icone_y,icone_x + 236,icone_y + 200,al_map_rgb(255,0,0));
                     al_draw_bitmap(icone,icone_x,icone_y,0);
                     icone_x+= 300;
-                }
-                icone_y+=350;
-                icone_x=50;
+                    if(i==3){
+                        icone_y+=350;
+                        icone_x=50;
+                    }
             }
             al_flip_display();
             redraw = false;
